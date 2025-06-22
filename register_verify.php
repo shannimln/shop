@@ -10,7 +10,6 @@ if (!file_exists($include_path)) {
 
 include $include_path;
 
-// Check database connection
 if ($conn->connect_error) {
     $_SESSION['error'] = "Erreur de connexion à la base de données: " . $conn->connect_error;
     header("Location: register.php");
@@ -29,10 +28,8 @@ if (isset($_POST['fname']) && isset($_POST['uname']) && isset($_POST['pass']) &&
         exit();
     }
 
-    // Hash the password
     $hashed_pass = password_hash($pass, PASSWORD_DEFAULT);
 
-    // Prepare and bind
     $stmt = $conn->prepare("INSERT INTO users (fname, uname, pass) VALUES (?, ?, ?)");
     if ($stmt === false) {
         $_SESSION['error'] = "Erreur lors de la préparation de la requête: " . $conn->error;
@@ -55,4 +52,3 @@ if (isset($_POST['fname']) && isset($_POST['uname']) && isset($_POST['pass']) &&
     $_SESSION['error'] = "Tous les champs sont obligatoires.";
     header("Location: register.php");
 }
-?>

@@ -1,8 +1,7 @@
 <?php
-// On démarre une session
 session_start();
 
-if(isset($_GET['id']) && !empty($_GET['id'])){
+if (isset($_GET['id']) && !empty($_GET['id'])) {
     require_once('connect.php');
     $db->exec("SET NAMES 'utf8mb4'");
 
@@ -18,8 +17,7 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
     require_once('close.php');
 
     header('Location: index.php');
-}else{
+} else {
     $_SESSION['erreur'] = "URL invalide";
     header('Location: index.php');
 }
-?>

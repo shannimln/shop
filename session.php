@@ -9,7 +9,7 @@ if (file_exists('maintenance.flag')) {
 }
 
 $message = null;
-$messageType = 'success';
+$messageType = 'success'; 
 if (isset($_SESSION['message'])) {
     $message = $_SESSION['message'];
     $messageType = $_SESSION['message_type'] ?? 'success';
@@ -43,3 +43,4 @@ if (isset($_SESSION['id'])) {
         exit();
     }
 }
+?> 

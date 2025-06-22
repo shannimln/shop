@@ -1,28 +1,29 @@
 <?php
-// On démarre une session
 session_start();
 
-if($_POST){
-    if(isset($_POST['produit']) && !empty($_POST['produit'])
-    && isset($_POST['Description']) && !empty($_POST['Description'])
-    && isset($_POST['prix']) && !empty($_POST['prix'])
-    && isset($_POST['nombre']) && is_numeric($_POST['nombre'])
-    && isset($_POST['badge']) && !empty($_POST['badge'])
-    && isset($_POST['Promo']) && is_numeric($_POST['Promo'])){ // Update field name
-        // On inclut la connexion à la base
+if ($_POST) {
+    if (
+        isset($_POST['produit']) && !empty($_POST['produit'])
+        && isset($_POST['Description']) && !empty($_POST['Description'])
+        && isset($_POST['prix']) && !empty($_POST['prix'])
+        && isset($_POST['nombre']) && is_numeric($_POST['nombre'])
+        && isset($_POST['badge']) && !empty($_POST['badge'])
+        && isset($_POST['Promo']) && is_numeric($_POST['Promo'])
+    ) {
+
         require_once('connect.php');
         $db->exec("SET NAMES 'utf8mb4'");
 
-        // On nettoie les données envoyées
+
         $produit = strip_tags($_POST['produit']);
         $Description = strip_tags($_POST['Description']);
         $prix = strip_tags($_POST['prix']);
         $nombre = strip_tags($_POST['nombre']);
         $badge = strip_tags($_POST['badge']);
-        $promo = strip_tags($_POST['Promo']); // Update field name
+        $promo = strip_tags($_POST['Promo']);
 
         try {
-            $sql = 'UPDATE `liste` SET `produit`=:produit, `Description`=:Description, `prix`=:prix, `nombre`=:nombre, `badge`=:badge, `Promo`=:Promo WHERE `id`=:id;'; // Update field name
+            $sql = 'UPDATE `liste` SET `produit`=:produit, `Description`=:Description, `prix`=:prix, `nombre`=:nombre, `badge`=:badge, `Promo`=:Promo WHERE `id`=:id;';
             $query = $db->prepare($sql);
 
             $query->bindValue(':produit', $produit, PDO::PARAM_STR);
@@ -30,7 +31,7 @@ if($_POST){
             $query->bindValue(':prix', $prix, PDO::PARAM_STR);
             $query->bindValue(':nombre', $nombre, PDO::PARAM_INT);
             $query->bindValue(':badge', $badge, PDO::PARAM_STR);
-            $query->bindValue(':Promo', $promo, PDO::PARAM_INT); // Update field name
+            $query->bindValue(':Promo', $promo, PDO::PARAM_INT);
             $query->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
 
             $query->execute();
@@ -44,11 +45,11 @@ if($_POST){
             header('Location: edit.php?id=' . $_GET['id']);
             exit;
         }
-    }else{
+    } else {
         $_SESSION['erreur'] = "Le formulaire est incomplet";
     }
-}else{
-    if(isset($_GET['id']) && !empty($_GET['id'])){
+} else {
+    if (isset($_GET['id']) && !empty($_GET['id'])) {
         require_once('connect.php');
         $db->exec("SET NAMES 'utf8mb4'");
 
@@ -62,12 +63,12 @@ if($_POST){
 
         $produit = $query->fetch();
 
-        if(!$produit){
+        if (!$produit) {
             $_SESSION['erreur'] = "Cet id n'existe pas";
             header('Location: index.php');
             exit;
         }
-    }else{
+    } else {
         $_SESSION['erreur'] = "URL invalide";
         header('Location: index.php');
         exit;
@@ -77,6 +78,7 @@ if($_POST){
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -88,35 +90,40 @@ if($_POST){
         body {
             font-family: 'Ubuntu', sans-serif;
         }
+
         h1 {
             font-size: 2.5rem;
             font-weight: 700;
         }
+
         label {
             font-size: 1.2rem;
             font-weight: 400;
         }
+
         .form-control {
             font-size: 1rem;
             font-weight: 300;
         }
+
         .btn {
             font-size: 1.1rem;
             font-weight: 400;
         }
     </style>
 </head>
+
 <body>
     <main class="container">
         <div class="row">
             <section class="col-12">
                 <?php
-                    if(!empty($_SESSION['erreur'])){
-                        echo '<div class="alert alert-danger" role="alert">
-                                '. $_SESSION['erreur'].'
+                if (!empty($_SESSION['erreur'])) {
+                    echo '<div class="alert alert-danger" role="alert">
+                                ' . $_SESSION['erreur'] . '
                             </div>';
-                        $_SESSION['erreur'] = "";
-                    }
+                    $_SESSION['erreur'] = "";
+                }
                 ?>
                 <h1>Modifier un Produit</h1>
                 <form method="post" action="edit.php?id=<?= $produit['id'] ?>">
@@ -162,8 +169,8 @@ if($_POST){
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="Promo">Promo (%)</label> <!-- Update field name -->
-                        <input type="number" id="Promo" name="Promo" class="form-control" value="<?= $produit['Promo'] ?>"> <!-- Update field name -->
+                        <label for="Promo">Promo (%)</label>
+                        <input type="number" id="Promo" name="Promo" class="form-control" value="<?= $produit['Promo'] ?>">
                     </div>
                     <button type="submit" class="btn btn-primary">Modifier</button>
                 </form>
@@ -171,4 +178,5 @@ if($_POST){
         </div>
     </main>
 </body>
+
 </html>

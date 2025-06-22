@@ -1,7 +1,8 @@
 <?php
+require_once 'bootstrap.php';
 require_once 'connect.php';
 session_start();
-// Vérification de l'utilisateur connecté
+
 if (!isset($_SESSION['id'])) {
     $_SESSION['erreur'] = "Vous devez être connecté pour ajouter des articles au panier.";
     header('Location: login.php');
@@ -9,12 +10,12 @@ if (!isset($_SESSION['id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user_id = (int) $_SESSION['id']; // ID de l'utilisateur connecté
+    $user_id = (int) $_SESSION['id'];
     $product_id = (int) $_POST['id_produit'];
     $quantity = (int) $_POST['quantite'];
 
     try {
-        // Vérifier si le produit est déjà dans le panier
+
         $sql = 'SELECT quantity FROM cart WHERE user_id = :user_id AND product_id = :product_id';
         $query = $db->prepare($sql);
         $query->execute([
@@ -25,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $existingCartItem = $query->fetch(PDO::FETCH_ASSOC);
 
         if ($existingCartItem) {
-            // Si le produit est déjà dans le panier, augmenter la quantité
+
             $newQuantity = $existingCartItem['quantity'] + $quantity;
             $sql = 'UPDATE cart SET quantity = :quantity WHERE user_id = :user_id AND product_id = :product_id';
             $query = $db->prepare($sql);
@@ -35,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':product_id' => $product_id,
             ]);
         } else {
-            // Sinon, insérer le produit dans le panier
+
             $sql = 'INSERT INTO cart (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)';
             $query = $db->prepare($sql);
             $query->execute([
@@ -45,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         }
 
-        // Rediriger vers la vue du panier
         header('Location: cart_view.php');
         exit();
     } catch (PDOException $e) {
@@ -71,7 +71,6 @@ if (isset($_SESSION['message'])) {
     unset($_SESSION['message']);
 }
 
-// Fetch user name if logged in
 if (isset($_SESSION['id'])) {
     $sql = 'SELECT fname FROM users WHERE id = :id';
     $query = $db->prepare($sql);
@@ -106,6 +105,7 @@ function getCart($userId)
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -115,18 +115,22 @@ function getCart($userId)
         body {
             font-family: 'Ubuntu', sans-serif;
         }
+
         h1 {
             font-size: 2em;
             font-weight: 700;
         }
+
         h2 {
             font-size: 1.5em;
             font-weight: 400;
         }
+
         p {
             font-size: 1em;
             font-weight: 300;
         }
+
         .error {
             font-size: 1em;
             font-weight: 700;
@@ -134,11 +138,11 @@ function getCart($userId)
         }
     </style>
 </head>
+
 <body>
-    <!-- ...existing code... -->
     <?php if (isset($_SESSION['erreur'])): ?>
         <p class="error"><?= $_SESSION['erreur'] ?></p>
     <?php endif; ?>
-    <!-- ...existing code... -->
 </body>
+
 </html>

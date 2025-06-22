@@ -22,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_unban'])) {
         $banEndDate = $ban['ban_end_date'];
         $bannedBy = $ban['banned_by'];
 
-        // Insert into ban_history
         $sql = 'INSERT INTO ban_history (user_id, reason, ban_end_date, banned_by) VALUES (:user_id, :reason, :ban_end_date, :banned_by)';
         $query = $db->prepare($sql);
         $query->bindValue(':user_id', $userId, PDO::PARAM_INT);
@@ -36,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_unban'])) {
         $query->bindValue(':ban_id', $banId, PDO::PARAM_INT);
         $query->execute();
 
-        // Update the users table to set banned to 0
         $sql = 'UPDATE users SET banned = 0 WHERE id = :user_id';
         $query = $db->prepare($sql);
         $query->bindValue(':user_id', $userId, PDO::PARAM_INT);
@@ -53,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_unban'])) {
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -73,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_unban'])) {
             height: 100vh;
             margin: 0;
         }
+
         .container {
             text-align: center;
             padding: 30px;
@@ -82,14 +82,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_unban'])) {
             width: 100%;
             border-radius: 10px;
         }
+
         h1 {
             font-size: 2rem;
             font-weight: 700;
             margin-bottom: 20px;
         }
+
         .btn {
             margin: 10px;
         }
+
         .fa-gavel {
             color: green;
             font-size: 4rem;
@@ -106,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_unban'])) {
         });
     </script>
 </head>
+
 <body>
     <div class="container">
         <i class="fa-solid fa-gavel"></i>
@@ -117,4 +121,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_unban'])) {
         </form>
     </div>
 </body>
+
 </html>

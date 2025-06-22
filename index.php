@@ -1,13 +1,14 @@
 <?php
+require_once 'bootstrap.php';
 if (file_exists('maintenance.flag')) {
     header('Location: maintenance.php');
     exit;
 }
-// On démarre une session
+
 session_start();
 if (isset($_SESSION['message'])) {
     $message = $_SESSION['message'];
-    $messageType = $_SESSION['message_type'] ?? 'success'; // Ensure message type is set
+    $messageType = $_SESSION['message_type'] ?? 'success';
     unset($_SESSION['message']);
     unset($_SESSION['message_type']);
 }
@@ -28,7 +29,7 @@ if (isset($_SESSION['id'])) {
     }
 }
 
-// Check for ban record
+
 if (isset($_SESSION['id'])) {
     $banSql = 'SELECT id FROM bans WHERE user_id = :id';
     $banQuery = $db->prepare($banSql);
@@ -70,16 +71,13 @@ if ($search) {
     $query = $db->prepare($sql);
 }
 
-// On exécute la requête
+
 $query->execute();
 
-// On stocke le résultat dans un tableau associatif
 $result = $query->fetchAll(PDO::FETCH_ASSOC);
 
-// Mélanger les résultats pour un affichage aléatoire
 shuffle($result);
 
-// Fetch average ratings for each product
 $ratingsSql = '
     SELECT product_id, AVG(rating) as average_rating
     FROM comments
@@ -88,10 +86,6 @@ $ratingsSql = '
 $ratingsQuery = $db->prepare($ratingsSql);
 $ratingsQuery->execute();
 $ratings = $ratingsQuery->fetchAll(PDO::FETCH_KEY_PAIR);
-
-// Remove chat message handling
-
-// Remove chat message handling
 
 require_once('close.php');
 
@@ -110,68 +104,76 @@ if ($message === 'T') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des produits</title>
 
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- CSS personnalisé -->
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Google Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap">
     <style>
         #notification {
-            top: 20px; /* Ajuster si nécessaire */
-            right: 20px; /* Ajuster si nécessaire */
+            top: 20px;
+            right: 20px;
             position: fixed;
             z-index: 1050;
             width: 300px;
         }
+
         .fixed-height {
-            height: 200px; /* Ajuster la hauteur selon vos besoins */
+            height: 200px;
             object-fit: cover;
         }
+
         .star-rating .fa-star,
         .star-rating .fa-star-half-alt,
         .star-rating .fa-star-quarter {
-            color: #FFD700; /* Yellow color for stars */
+            color: #FFD700;
         }
+
         body {
             font-family: 'Ubuntu', sans-serif;
         }
+
         h5 {
             font-size: 1.5rem;
             font-weight: 700;
         }
+
         p {
             font-size: 1rem;
             font-weight: 400;
         }
+
         .card-title {
             font-size: 1.25rem;
             font-weight: 700;
         }
+
         .card-text {
             font-size: 1rem;
             font-weight: 300;
         }
+
         .card-price-original {
             font-size: 1rem;
             font-weight: 400;
             text-decoration: line-through;
         }
+
         .card-price-promo {
             font-size: 1.25rem;
             font-weight: 700;
             color: red;
         }
+
         .card-quantity {
             font-size: 0.875rem;
             font-weight: 400;
         }
+
         .btn {
             font-size: 1rem;
             font-weight: 700;
         }
+
         .alert-custom {
             margin-top: 20px;
             margin-left: auto;
@@ -179,6 +181,7 @@ if ($message === 'T') {
             width: 80%;
             text-align: center;
         }
+
         .chatbox {
             position: fixed;
             bottom: 20px;
@@ -190,28 +193,34 @@ if ($message === 'T') {
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 10px;
-            display: none; /* Initially hidden */
+            display: none;
         }
+
         .chatbox-header {
             font-weight: bold;
             margin-bottom: 10px;
         }
+
         .chatbox-body {
             max-height: 200px;
             overflow-y: auto;
             margin-bottom: 10px;
         }
+
         .chatbox-footer {
             display: flex;
             align-items: center;
         }
+
         .chatbox-footer textarea {
             flex: 1;
             resize: none;
         }
+
         .chatbox-footer button {
             margin-left: 10px;
         }
+
         .success-message {
             display: none;
             position: fixed;
@@ -224,20 +233,33 @@ if ($message === 'T') {
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .success-message.show {
             display: block;
             animation: fadeInOut 4s forwards;
         }
+
         @keyframes fadeInOut {
-            0% { opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { opacity: 0; }
+            0% {
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
         }
-        /* From Uiverse.io by PaolaMarai */
+
         .error {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-            Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+                Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
             width: 320px;
             padding: 12px;
             display: flex;
@@ -283,16 +305,14 @@ if ($message === 'T') {
 </head>
 
 <body>
-    <!-- Navigation -->
     <?php include 'includes/navbar.php'; ?>
-    
+
     <?php if (isset($_SESSION['erreur'])): ?>
         <div class="alert alert-danger alert-custom" role="alert">
             <?= htmlspecialchars($_SESSION['erreur']) ?>
         </div>
         <?php unset($_SESSION['erreur']); ?>
     <?php endif; ?>
-    <!-- Contenu principal -->
     <main class="container mt-5">
         <div id="productCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="10000">
             <div class="carousel-inner">
@@ -301,7 +321,7 @@ if ($message === 'T') {
                 foreach ($result as $produit) {
                     $image_path = 'image_produit/' . $produit['image_produit'];
                     $default_image = 'image_produit/test.png';
-                    
+
                     if (!file_exists($image_path) || empty($produit['image_produit'])) {
                         $image_path = $default_image;
                     }
@@ -330,9 +350,9 @@ if ($message === 'T') {
             foreach ($result as $produit) {
                 $image_path = 'image_produit/' . $produit['image_produit'];
                 $default_image = 'image_produit/test.png';
-                
+
                 if (!file_exists($image_path) || empty($produit['image_produit'])) {
-                    $image_path = $default_image; 
+                    $image_path = $default_image;
                 }
 
                 $quantities = [
@@ -355,12 +375,10 @@ if ($message === 'T') {
                 $prix = is_numeric(str_replace(',', '.', $produit['prix'])) ? (float)str_replace(',', '.', $produit['prix']) : 0;
                 $promo = is_numeric($produit['Promo']) ? (float)$produit['Promo'] : 0;
 
-                // Appliquer la réduction Prime pour les produits Amazon
                 $isAmazon = strtolower($produit['production_company']) === 'amazon';
                 $primeDiscount = ($isPrime && $isAmazon) ? 10 : 0;
 
-                // Calculer le prix après réduction
-                $totalDiscount = min($promo + $primeDiscount, 100); // Limiter à 100 %
+                $totalDiscount = min($promo + $primeDiscount, 100);
                 $finalPrice = $prix * (1 - $totalDiscount / 100);
 
                 $averageRating = $ratings[$produit['id']] ?? 0;
@@ -376,15 +394,15 @@ if ($message === 'T') {
                 <div class="col-md-4 col-sm-6 mb-4">
                     <div class="card" onclick="window.location.href='details.php?id=<?= htmlspecialchars($produit['id']); ?>'">
                         <div class="position-relative">
-                        <img src="<?= htmlspecialchars($image_path); ?>" class="card-img-top fixed-height img-fluid" alt="<?= htmlspecialchars($produit['produit']); ?>">
+                            <img src="<?= htmlspecialchars($image_path); ?>" class="card-img-top fixed-height img-fluid" alt="<?= htmlspecialchars($produit['produit']); ?>">
                         </div>
                         <div class="card-body">
-                        <h5 class="card-title"><?= htmlspecialchars($produit['produit']); ?></h5>
-                        <p class="card-text"><?= htmlspecialchars($description); ?></p>
+                            <h5 class="card-title"><?= htmlspecialchars($produit['produit']); ?></h5>
+                            <p class="card-text"><?= htmlspecialchars($description); ?></p>
                             <p class="card-text"><strong>Produit par :</strong> <?= htmlspecialchars($produit['production_company'] ?? 'Inconnu'); ?></p>
                             <p class="card-text star-rating"><strong>Note moyenne :</strong> <?= $stars; ?> (<?= number_format($averageRating, 1); ?>)</p>
 
-                            <!-- Affichage des prix avec réduction -->
+
                             <?php if ($promo > 0 || $primeDiscount > 0): ?>
                                 <p class="card-price">
                                     <span class="card-price-original"><?= number_format($prix, 2, ',', ' '); ?> €</span>
@@ -394,7 +412,7 @@ if ($message === 'T') {
                                 <p class="card-price"><?= number_format($prix, 2, ',', ' '); ?> €</p>
                             <?php endif; ?>
 
-                            <!-- Affichage de la quantité -->
+
                             <p class="card-quantity <?= htmlspecialchars($quantityClass); ?>">
                                 <?= htmlspecialchars($produit['nombre'] > 0 ? 'Quantité : ' . $produit['nombre'] : 'En rupture de stock'); ?>
                             </p>
@@ -416,37 +434,37 @@ if ($message === 'T') {
             ?>
         </div>
     </main>
-<!-- Modal -->
-<?php include 'includes/modal.php'; ?>
+    <!-- Modal -->
+    <?php include 'includes/modal.php'; ?>
 
-<script>
-    document.getElementById('darkModeToggle').addEventListener('click', function() {
-        document.body.classList.toggle('dark-mode');
-        if (document.body.classList.contains('dark-mode')) {
-            this.textContent = 'Light Mode';
-        } else {
-            this.textContent = 'Dark Mode';
+    <script>
+        document.getElementById('darkModeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                this.textContent = 'Light Mode';
+            } else {
+                this.textContent = 'Dark Mode';
+            }
+        });
+
+        // Automatically hide the notification after 5 seconds
+        setTimeout(function() {
+            var notification = document.getElementById('notification');
+            if (notification) {
+                notification.style.display = 'none';
+            }
+        }, 5000);
+
+        // Dismiss notification on close button click
+        function dismissNotification() {
+            var notification = document.getElementById('notification');
+            if (notification) {
+                notification.style.display = 'none';
+            }
         }
-    });
-
-    // Automatically hide the notification after 5 seconds
-    setTimeout(function() {
-        var notification = document.getElementById('notification');
-        if (notification) {
-            notification.style.display = 'none';
-        }
-    }, 5000);
-
-    // Dismiss notification on close button click
-    function dismissNotification() {
-        var notification = document.getElementById('notification');
-        if (notification) {
-            notification.style.display = 'none';
-        }
-    }
-
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 </body>
+
 </html>

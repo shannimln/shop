@@ -31,7 +31,6 @@ try {
         throw new Exception("Le paiement n'a pas été validé.");
     }
 
-    // Récupérer les articles du panier
     $sql = '
         SELECT c.id AS cart_id, c.quantity, l.id AS product_id, l.produit, l.prix, l.Promo, l.nombre AS stock_disponible
         FROM cart c
@@ -45,25 +44,22 @@ try {
 
     $total = 0;
 
-    // Démarrer une transaction
     $db->beginTransaction();
 
     foreach ($cartItems as $item) {
         $productId = $item['product_id'];
         $quantity = $item['quantity'];
         $price = str_replace(',', '.', $item['prix']);
-        $price = (float)$price * (1 - $item['Promo'] / 100); // Appliquer la promotion
+        $price = (float)$price * (1 - $item['Promo'] / 100);
         $subtotal = $price * $quantity;
         $total += $subtotal;
 
         $stockDisponible = $item['stock_disponible'];
 
-        // Vérifier le stock
         if ($quantity > $stockDisponible) {
             throw new Exception("Le stock du produit '{$item['produit']}' est insuffisant.");
         }
 
-        // Réduire le stock
         $sql = 'UPDATE liste SET nombre = nombre - :quantity WHERE id = :product_id';
         $query = $db->prepare($sql);
         $query->bindValue(':quantity', $quantity, PDO::PARAM_INT);
@@ -71,7 +67,6 @@ try {
         $query->execute();
     }
 
-    // Ajouter une commande dans `orders`
     $sql = 'INSERT INTO orders (user_id, total_amount,stripe_session_id) VALUES (:user_id, :total_amount, :stripe_session_id)';
     $query = $db->prepare($sql);
     $query->bindValue(':user_id', $userId, PDO::PARAM_INT);
@@ -80,7 +75,6 @@ try {
     $query->execute();
     $orderId = $db->lastInsertId();
 
-    // Ajouter les articles dans `order_items`
     foreach ($cartItems as $item) {
         $productId = $item['product_id'];
         $quantity = $item['quantity'];
@@ -96,13 +90,11 @@ try {
         $query->execute();
     }
 
-    // Vider le panier
     $sql = 'DELETE FROM cart WHERE user_id = :user_id';
     $query = $db->prepare($sql);
     $query->bindValue(':user_id', $userId, PDO::PARAM_INT);
     $query->execute();
 
-    // Valider la transaction
     $db->commit();
 
     $_SESSION['message'] = "Votre commande a été validée avec succès.";

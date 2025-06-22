@@ -1,38 +1,25 @@
 <?php
-// On démarre une session
 session_start();
 
 if ($_POST) {
-    if (isset($_POST['produit']) && !empty($_POST['produit'])
-        && isset($_POST['description']) && !empty($_POST['description'])
-        && isset($_POST['prix']) && is_numeric($_POST['prix']) // Ensure prix is numeric
-        && isset($_POST['nombre']) && is_numeric($_POST['nombre'])
-        && isset($_FILES['image_produit']) && $_FILES['image_produit']['error'] == 0
-        && isset($_POST['Promo']) && is_numeric($_POST['Promo'])
-        && isset($_POST['production_company_id']) && is_numeric($_POST['production_company_id'])) {
+    require_once('connect.php');
 
-        require_once('connect.php');
+    $produit = isset($_POST['produit']) ? strip_tags($_POST['produit']) : '';
+    $description = isset($_POST['description']) ? strip_tags($_POST['description']) : '';
+    $prix = isset($_POST['prix']) && is_numeric($_POST['prix']) ? strip_tags($_POST['prix']) : 0;
+    $nombre = isset($_POST['nombre']) && is_numeric($_POST['nombre']) ? strip_tags($_POST['nombre']) : 0;
+    $promo = isset($_POST['Promo']) && is_numeric($_POST['Promo']) ? strip_tags($_POST['Promo']) : 0;
+    $production_company_id = isset($_POST['production_company_id']) && is_numeric($_POST['production_company_id']) ? strip_tags($_POST['production_company_id']) : 0;
 
-        // On nettoie les données envoyées
-        $produit = strip_tags($_POST['produit']);
-        $description = strip_tags($_POST['description']);
-        $prix = strip_tags($_POST['prix']);
-        $nombre = strip_tags($_POST['nombre']);
-    
-        $promo = strip_tags($_POST['Promo']);
-        $production_company_id = strip_tags($_POST['production_company_id']);
+    $uploads_dir = 'uploads';
+    if (!is_dir($uploads_dir)) {
+        mkdir($uploads_dir, 0777, true);
+    }
 
-        // Ensure the uploads directory exists
-        $uploads_dir = 'uploads';
-        if (!is_dir($uploads_dir)) {
-            mkdir($uploads_dir, 0777, true);
-        }
-
-        // On gère l'upload de l'image
-        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+    $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+    $new_filename = '';
+    if (isset($_FILES['image_produit']) && $_FILES['image_produit']['error'] == 0) {
         $filename = $_FILES['image_produit']['name'];
-        $filetype = $_FILES['image_produit']['type'];
-        $filesize = $_FILES['image_produit']['size'];
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
 
         if (in_array($ext, $allowed)) {
@@ -43,42 +30,39 @@ if ($_POST) {
             header('Location: add.php');
             exit;
         }
-
-        // Limit the length of the description
-        $description = substr($_POST['description'], 0, 255);
-
-        $sql = 'INSERT INTO `liste` (`produit`, `description`, `prix`, `nombre`, `image_produit`, `Promo`, `actif`, `production_company_id`) 
-                VALUES (:produit, :description, :prix, :nombre, :image_produit, :Promo, 1, :production_company_id);';
-
-        $query = $db->prepare($sql);
-
-        $query->bindValue(':produit', $produit, PDO::PARAM_STR);
-        $query->bindValue(':description', $description, PDO::PARAM_STR);
-        $query->bindValue(':prix', $prix, PDO::PARAM_STR);
-        $query->bindValue(':nombre', $nombre, PDO::PARAM_INT);
-        $query->bindValue(':image_produit', $new_filename, PDO::PARAM_STR);
-        $query->bindValue(':Promo', $promo, PDO::PARAM_INT);
-        $query->bindValue(':production_company_id', $production_company_id, PDO::PARAM_INT);
-
-        $query->execute();
-
-        if ($query->rowCount() > 0) {
-            $_SESSION['message'] = "Produit ajouté";
-        } else {
-            $_SESSION['erreur'] = "Erreur lors de l'ajout du produit";
-        }
-
-        require_once('close.php');
-
-        header('Location: index.php');
-    } else {
-        $_SESSION['erreur'] = "Le formulaire est incomplet";
     }
+    $description = substr($description, 0, 255);
+
+    $sql = 'INSERT INTO `liste` (`produit`, `description`, `prix`, `nombre`, `image_produit`, `Promo`, `actif`, `production_company_id`) 
+            VALUES (:produit, :description, :prix, :nombre, :image_produit, :Promo, 1, :production_company_id);';
+
+    $query = $db->prepare($sql);
+
+    $query->bindValue(':produit', $produit, PDO::PARAM_STR);
+    $query->bindValue(':description', $description, PDO::PARAM_STR);
+    $query->bindValue(':prix', $prix, PDO::PARAM_STR);
+    $query->bindValue(':nombre', $nombre, PDO::PARAM_INT);
+    $query->bindValue(':image_produit', $new_filename, PDO::PARAM_STR);
+    $query->bindValue(':Promo', $promo, PDO::PARAM_INT);
+    $query->bindValue(':production_company_id', $production_company_id, PDO::PARAM_INT);
+
+    $query->execute();
+
+    if ($query->rowCount() > 0) {
+        $_SESSION['message'] = "Produit ajouté";
+    } else {
+        $_SESSION['erreur'] = "Erreur lors de l'ajout du produit";
+    }
+
+    require_once('close.php');
+
+    header('Location: index.php');
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -90,31 +74,35 @@ if ($_POST) {
         body {
             font-family: 'Ubuntu', sans-serif;
         }
+
         h1 {
             font-size: 2.5rem;
             font-weight: 700;
         }
+
         label {
             font-size: 1.2rem;
             font-weight: 400;
         }
+
         .btn {
             font-size: 1rem;
             font-weight: 700;
         }
     </style>
 </head>
+
 <body>
     <main class="container">
         <div class="row">
             <section class="col-12">
                 <?php
-                    if(!empty($_SESSION['erreur'])){
-                        echo '<div class="alert alert-danger" role="alert">
-                                '. $_SESSION['erreur'].'
+                if (!empty($_SESSION['erreur'])) {
+                    echo '<div class="alert alert-danger" role="alert">
+                                ' . $_SESSION['erreur'] . '
                             </div>';
-                        $_SESSION['erreur'] = "";
-                    }
+                    $_SESSION['erreur'] = "";
+                }
                 ?>
                 <h1>Ajouter un produit</h1>
                 <form method="post" enctype="multipart/form-data">
@@ -139,8 +127,8 @@ if ($_POST) {
                         <input type="file" id="image_produit" name="image_produit" class="form-control">
                     </div>
                     <div class="form-group">
-                        <label for="Promo">Promo (%)</label> <!-- Update field name -->
-                        <input type="number" id="Promo" name="Promo" class="form-control"> <!-- Update field name -->
+                        <label for="Promo">Promo (%)</label>
+                        <input type="number" id="Promo" name="Promo" class="form-control">
                     </div>
                     <div class="form-group">
                         <label for="production_company_id">Société de production</label>
@@ -163,4 +151,5 @@ if ($_POST) {
         </div>
     </main>
 </body>
+
 </html>

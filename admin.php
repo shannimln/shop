@@ -20,7 +20,6 @@ if (!$user || $user['admin'] != 1) {
     exit;
 }
 
-// Bypass maintenance mode for admin users
 if (file_exists('maintenance.flag') && basename($_SERVER['PHP_SELF']) != 'admin.php') {
     $endTime = file_get_contents('maintenance.flag');
     if (time() > $endTime) {
@@ -726,8 +725,6 @@ try {
                     <?php echo file_exists('maintenance.flag') ? 'Désactiver la maintenance' : 'Activer la maintenance'; ?>
                 </button>
             </form>
-            <button class="btn btn-primary" onclick="openPatchNoteModal()">Ajouter Patch Note</button>
-            <!-- Supprimer le bouton Options -->
         </div>
     </div>
     <div id="adminContainer" class="admin-container" style="display: none;">
@@ -762,7 +759,7 @@ try {
                                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                 <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                                 <input type="hidden" name="is_prime" value="<?php echo $user['is_prime']; ?>">
-                                <button type="submit" name="toggle_prime" class="btn <?php echo $user['is_prime'] ? 'btn-toggle-on' : 'btn-toggle-off'; ?>">
+                                <button type="submit" name="toggle_prime" class="btn <?php echo $user['is_prime'] ? 'btn-success' : 'btn-danger'; ?>">
                                     <?php echo $user['is_prime'] ? '<i class="fa fa-crown" style="color: gold;"></i> Prime On' : '<i class="fa fa-crown" style="color: white;"></i> Prime Off'; ?>
                                 </button>
                             </form>
@@ -770,7 +767,7 @@ try {
                                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                 <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                                 <input type="hidden" name="is_admin" value="<?php echo $user['admin']; ?>">
-                                <button type="submit" name="toggle_admin" class="btn <?php echo $user['admin'] ? 'btn-toggle-on' : 'btn-toggle-off'; ?>">
+                                <button type="submit" name="toggle_admin" class="btn <?php echo $user['admin'] ? 'btn-success' : 'btn-danger'; ?>">
                                     <?php echo $user['admin'] ? '<i class="fa fa-user-shield" style="color: blue;"></i> Admin On' : '<i class="fa fa-user-shield" style="color: white;"></i> Admin Off'; ?>
                                 </button>
                             </form>
@@ -953,7 +950,6 @@ try {
             </table>
         </div>
     </div>
-    <!-- Ban Modal -->
     <div id="banModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeBanModal()">&times;</span>
@@ -974,7 +970,7 @@ try {
         </div>
     </div>
     </div>
-    <!-- Maintenance Modal -->
+    <!--
     <div id="maintenanceModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeMaintenanceModal()">&times;</span>
@@ -989,20 +985,7 @@ try {
             </form>
         </div>
     </div>
-    <!-- Patch Note Modal -->
-    <div id="patchNoteModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closePatchNoteModal()">&times;</span>
-            <h2>Ajouter Patch Note</h2>
-            <form method="post" action="patchnote.php">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                <textarea name="update" required class="form-control mb-3"></textarea>
-                <button type="submit" class="btn btn-primary btn-block">Submit</button>
-            </form>
-        </div>
-    </div>
-    <div class="logs-container" id="logsTableContainer">
-        <div class="table-title">
+    -->
 </body>
 
 </html>

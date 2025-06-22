@@ -1,12 +1,13 @@
 <?php
 session_start();
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-    header("Location: index.php");
-    exit();
+	header("Location: index.php");
+	exit();
 }
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,40 +23,49 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 			background-position: center;
 			animation: backgroundAnimation 20s infinite alternate;
 		}
+
 		@keyframes backgroundAnimation {
 			0% {
 				background-position: center;
 			}
+
 			50% {
 				background-position: top;
 			}
+
 			100% {
 				background-position: center;
 			}
 		}
+
 		h4 {
 			font-size: 1.5rem;
 			font-weight: 700;
 		}
+
 		label {
 			font-size: 1rem;
 			font-weight: 400;
 		}
+
 		.btn {
 			font-size: 1rem;
 			font-weight: 700;
 		}
+
 		.text-secondary {
 			font-size: 0.875rem;
 			font-weight: 400;
 		}
+
 		.form-container {
 			background: rgba(255, 255, 255, 0.9);
 			padding: 2rem;
 			border-radius: 10px;
 			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-			width: 500px; /* Increased width */
+			width: 500px;
 		}
+
 		footer {
 			position: fixed;
 			bottom: 0;
@@ -66,55 +76,57 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 		}
 	</style>
 </head>
+
 <body>
-    <div class="d-flex justify-content-center align-items-center vh-100">
-    	<form class="form-container shadow w-450 p-3 rounded" 
-    	      action="login_verify.php" 
-    	      method="post">
+	<div class="d-flex justify-content-center align-items-center vh-100">
+		<form class="form-container shadow w-450 p-3 rounded"
+			action="login_verify.php"
+			method="post">
 
-    		<h4 class="text-center mb-4">Connexion</h4>
+			<h4 class="text-center mb-4">Connexion</h4>
 
-    		<?php 
-            if (isset($_SESSION['error'])): ?>
-    		<div class="alert alert-danger alert-dismissible fade show" role="alert">
-			  <?php echo $_SESSION['error']; ?>
-			  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+			<?php
+			if (isset($_SESSION['error'])): ?>
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">
+					<?php echo $_SESSION['error']; ?>
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+				</div>
+			<?php
+				unset($_SESSION['error']);
+			endif; ?>
+
+			<div class="mb-3">
+				<label for="uname" class="form-label">Nom d'utilisateur</label>
+				<input type="text"
+					class="form-control"
+					id="uname"
+					name="uname"
+					placeholder="Entrez votre nom d'utilisateur"
+					value="<?php echo isset($_SESSION['uname']) ? $_SESSION['uname'] : ''; ?>">
 			</div>
-		    <?php 
-            unset($_SESSION['error']); 
-            endif; ?>
 
-		  <div class="mb-3">
-		    <label for="uname" class="form-label">Nom d'utilisateur</label>
-		    <input type="text" 
-		           class="form-control" 
-		           id="uname" 
-		           name="uname" 
-		           placeholder="Entrez votre nom d'utilisateur"
-		           value="<?php echo isset($_SESSION['uname']) ? $_SESSION['uname'] : ''; ?>">
-		  </div>
+			<div class="mb-3">
+				<label for="pass" class="form-label">Mot de passe</label>
+				<input type="password"
+					class="form-control"
+					id="pass"
+					name="pass"
+					placeholder="Entrez votre mot de passe">
+			</div>
 
-		  <div class="mb-3">
-		    <label for="pass" class="form-label">Mot de passe</label>
-		    <input type="password" 
-		           class="form-control" 
-		           id="pass" 
-		           name="pass" 
-		           placeholder="Entrez votre mot de passe">
-		  </div>
-		  
-		  <div class="d-flex justify-content-between align-items-center">
-		      <button type="submit" class="btn btn-primary">Se connecter</button>
-		      <a href="register.php" class="text-secondary">Créer un compte</a>
-		  </div>
+			<div class="d-flex justify-content-between align-items-center">
+				<button type="submit" class="btn btn-primary">Se connecter</button>
+				<a href="register.php" class="text-secondary">Créer un compte</a>
+			</div>
 		</form>
-    </div>
+	</div>
 
-    <footer>
-    	<p>&copy; 2024 Valomazone. Tous droits réservés.</p>
-    </footer>
+	<footer>
+		<p>&copy; 2024 GameShop. Tous droits réservés.</p>
+	</footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 </body>
+
 </html>

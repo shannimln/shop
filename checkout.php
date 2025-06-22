@@ -18,7 +18,6 @@ if (!isset($_SESSION['id'])) {
 
 $userId = $_SESSION['id'];
 
-// Fonction pour récupérer le panier
 function getCart($userId)
 {
     global $db;
@@ -37,7 +36,6 @@ function getCart($userId)
     return $query->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Fonction pour vérifier si l'utilisateur est Prime
 function isPrimeUser($userId)
 {
     global $db;
@@ -51,43 +49,37 @@ function isPrimeUser($userId)
     return !empty($result['is_prime']) && $result['is_prime'] == 1;
 }
 
-// Vérifier si l'utilisateur est Prime
 $isPrime = isPrimeUser($userId);
 
-// Récupérer les produits du panier
 $cartItems = getCart($userId);
 
-// Créer une ligne pour chaque article dans Stripe Checkout
 $lineItems = [];
 foreach ($cartItems as $item) {
-    $price = str_replace(',', '.', $item['prix']); // Convertir en numérique
+    $price = str_replace(',', '.', $item['prix']);
     $price = (float)$price;
 
-    // Appliquer la promotion
     $promoDiscount = $item['Promo'] ?? 0;
     $priceAfterPromo = $price * (1 - $promoDiscount / 100);
 
-    // Appliquer la réduction Prime pour les produits Amazon
     if ($isPrime && strtolower(trim($item['production_company'])) === 'amazon') {
-        $priceAfterPromo *= 0.9; // Réduction supplémentaire de 10 %
+        $priceAfterPromo *= 0.9;
     }
 
-    // Ajouter la ligne à Stripe Checkout
     $lineItems[] = [
         'price_data' => [
             'currency' => 'eur',
             'product_data' => [
                 'name' => $item['produit'],
             ],
-            'unit_amount' => round($priceAfterPromo * 100), // Stripe attend un montant en centimes
+            'unit_amount' => round($priceAfterPromo * 100),
         ],
         'quantity' => $item['quantity'],
     ];
 }
 
-// Créer une session Stripe Checkout
+
 try {
-    // Récupérer automatiquement l'URL de base
+
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
     $baseUrl = $protocol . "://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']);
 
@@ -99,7 +91,6 @@ try {
         'cancel_url' => $baseUrl . '/cart.php',
     ]);
 
-    // Rediriger vers Stripe Checkout
     header('Location: ' . $checkoutSession->url);
     exit();
 } catch (Exception $e) {

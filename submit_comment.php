@@ -8,7 +8,6 @@ if (isset($_POST['product_id'], $_POST['rating'], $_POST['comment'], $_SESSION['
     $comment = strip_tags($_POST['comment']);
     $userId = $_SESSION['id'];
 
-    // Fetch the username of the logged-in user
     $sqlUser = 'SELECT username FROM users WHERE id = :id';
     $queryUser = $db->prepare($sqlUser);
     $queryUser->bindValue(':id', $userId, PDO::PARAM_INT);
@@ -37,4 +36,3 @@ if (isset($_POST['product_id'], $_POST['rating'], $_POST['comment'], $_SESSION['
 
 header('Location: details.php?id=' . $productId);
 exit;
-?>
